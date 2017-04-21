@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BonzIRC</string>
+    <string name="hint_nick">Nick</string>
+    <string name="hint_server">Server</string>
+    <string name="hint_port">Port</string>
+    <string name="hint_channel">Channel</string>
+    <string name="send">Bonz</string>
+    <string name="desc_service">Networking service for BonzIRC</string>
+</resources>
