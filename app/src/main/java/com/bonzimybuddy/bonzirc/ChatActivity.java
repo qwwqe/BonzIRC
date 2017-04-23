@@ -11,14 +11,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /* Basically all the IRC code and chat window code crammed together. Another refactoring project.
  */

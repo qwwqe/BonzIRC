@@ -1,44 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <!-- hack-ish solution to auto-focus on activity startup -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
+    <com.bonzimybuddy.bonzirc.LoginField
         android:id="@+id/nick"
+        custom:type="nick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/server"
         android:minWidth="80sp"
+        android:drawablePadding="10sp"
         android:gravity="center_horizontal"
+        android:textColorHint="@drawable/field_selector"
         android:hint="@string/hint_nick"/>
-    <EditText
+    <com.bonzimybuddy.bonzirc.LoginField
         android:id="@+id/server"
+        custom:type="server"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/port"
         android:minWidth="80sp"
+        android:drawablePadding="10sp"
         android:gravity="center_horizontal"
+        android:textColorHint="@drawable/field_selector"
         android:hint="@string/hint_server"/>
-    <EditText
+    <com.bonzimybuddy.bonzirc.LoginField
         android:id="@+id/port"
+        custom:type="port'"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:inputType="number"
         android:minWidth="80sp"
+        android:drawablePadding="10sp"
         android:gravity="center_horizontal"
+        android:textColorHint="@drawable/field_selector"
         android:hint="@string/hint_port"/>
-    <EditText
+    <com.bonzimybuddy.bonzirc.LoginField
         android:id="@+id/channel"
+        custom:type="channel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/port"
         android:minWidth="80sp"
+        android:drawablePadding="10sp"
         android:gravity="center_horizontal"
+        android:textColorHint="@drawable/field_selector"
         android:hint="@string/hint_channel"/>
     <Button
         android:id="@+id/send"
