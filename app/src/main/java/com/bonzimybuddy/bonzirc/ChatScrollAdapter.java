@@ -7,52 +7,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Vector;
 
-public class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.ViewHolder> {
+class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.ViewHolder> {
     private ArrayList<String> mLines;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
 
-        public ViewHolder(View v) {
+        ViewHolder(View v) {
             super(v);
             textView = (TextView) v.findViewById(R.id.textView);
         }
 
-        public TextView getTextView() {
-            return textView;
-        }
-
-        public void addLine(String line) {
-            mLines.add(line);
-        }
+        TextView getTextView() { return textView; }
     }
 
-    public ChatScrollAdapter(String[] lines) {
-        mLines = new ArrayList<String>(Arrays.asList(lines));
-    }
-
-    public ChatScrollAdapter() {
-        mLines = new ArrayList<String>();
-    }
-
-    public void addLine(String line) {
-        mLines.add(line);
-        notifyItemInserted(mLines.size() - 1);
-    }
-
-    public void setLines(ArrayList<String> lines) {
-        mLines = new ArrayList<String> (lines);
-        notifyDataSetChanged();
-    }
-
-    public void clearLines() {
-        mLines.clear();
-        notifyDataSetChanged();
-    }
+    ChatScrollAdapter() { mLines = new ArrayList<>(); }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
@@ -68,7 +38,20 @@ public class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.Vi
     }
 
     @Override
-    public int getItemCount() {
-        return mLines.size();
+    public int getItemCount() { return mLines.size(); }
+
+    void addLine(String line) {
+        mLines.add(line);
+        notifyItemInserted(mLines.size() - 1);
+    }
+
+    void setLines(ArrayList<String> lines) {
+        mLines = new ArrayList<> (lines);
+        notifyDataSetChanged();
+    }
+
+    void clearLines() {
+        mLines.clear();
+        notifyDataSetChanged();
     }
 }

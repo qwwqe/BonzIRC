@@ -24,17 +24,15 @@ public class ChatActivity extends Activity {
     private IRCService mService; // network service. this is a Service, not an IBinder object. fwiw.
     private boolean mBound = false;
 
-    // irc stuff
-    private boolean registered = false;
-    private String nick;
-    private String channel;
-    private String server;
-    private String port;
-
-    // display stuff
-    private RecyclerView mChatView;
-    private ChatScrollAdapter mChatScrollAdapter;
-    private ArrayList<String> chatLog;
+    // irc and display stuff. package-private so IRCReceiver can access these fields.
+    // TODO: make an interface instead...
+    String nick;
+    String channel;
+    String server;
+    String port;
+    RecyclerView mChatView;
+    ChatScrollAdapter mChatScrollAdapter;
+    ArrayList<String> chatLog;
 
     /* This ServiceConnection must be provided when binding to a service (calling bindService()).
      * A call to bindService() returns immediately, and therefore does not return an IBinder for
@@ -54,10 +52,7 @@ public class ChatActivity extends Activity {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            //mService.unBind();
-            //mBound = false;
-        }
+        public void onServiceDisconnected(ComponentName arg0) {}
     };
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -89,9 +84,6 @@ public class ChatActivity extends Activity {
         }
     };
 
-    /* Not sure if bindService() should be called here or in onStart().
-     *
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,12 +96,12 @@ public class ChatActivity extends Activity {
             @Override
             public void onLayoutChange(View view, int a, int b, int c, int d,
                                        int e, int f, int g, int h) {
-                ((RecyclerView) view).smoothScrollToPosition(mChatScrollAdapter.getItemCount() - 1);
+                ((RecyclerView) view).smoothScrollToPosition(mChatScrollAdapter.getItemCount());
             }
         });
 
         Bundle extras;
-        if(savedInstanceState == null) { // first starting the app
+        if(savedInstanceState == null) {
             extras = getIntent().getExtras();
             chatLog = new ArrayList<String>();
             mChatScrollAdapter.addLine("Connecting...");
@@ -154,9 +146,6 @@ public class ChatActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        // the question is... what happens to the service when the activity is
-        // destroyed but the service not unbound? answer probably in the docs.
-
         if(mBound) {
             mService.deregisterClient();
             unbindService(mConnection);
@@ -185,8 +174,8 @@ public class ChatActivity extends Activity {
         mService.privateMessage(message);
     }
 
-    // commit a line to the chat log. triggers update of chat display
-    private void commitLine(String line) {
+    // add a line to the chat log. triggers update of chat display
+    void commitLine(String line) {
         chatLog.add(line);
         mChatScrollAdapter.addLine(line);
         mChatView.smoothScrollToPosition(mChatScrollAdapter.getItemCount());
@@ -194,7 +183,7 @@ public class ChatActivity extends Activity {
 
     // set chat log and display
     private void setLines(ArrayList<String> lines) {
-        chatLog = new ArrayList<String>(lines);
+        chatLog = new ArrayList<>(lines);
         mChatScrollAdapter.setLines(lines);
         mChatView.smoothScrollToPosition(mChatScrollAdapter.getItemCount());
     }

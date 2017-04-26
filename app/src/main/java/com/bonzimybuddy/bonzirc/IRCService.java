@@ -95,12 +95,10 @@ public class IRCService extends Service {
                         inputIntents.clear();
                     }
 
-                    // incoming message
                     if(inputStream.ready()) {
                         receiveMessage();
                     }
 
-                    // outgoing message
                     if(!outputMessages.isEmpty()) {
                         for(String line : outputMessages)
                             outputStream.write(line);
@@ -109,9 +107,10 @@ public class IRCService extends Service {
                         outputMessages.clear();
                     }
                 }
-            } catch (Exception e) {
-                // cheers to a failed connection!
+            } catch (Exception e) { // TODO: connection and IRC error handling...
+
                 Log.d("connection", e.toString());
+                //Intent intent = new Intent()
             }
         }
     }
@@ -178,6 +177,8 @@ public class IRCService extends Service {
             String parts[];
             boolean relayMessage = false;
 
+            Log.d("NETWORK", line);
+
             Intent intent = new Intent("incomingMessage");
             intent.putExtra("IRC_RAW", line);
 
@@ -225,6 +226,12 @@ public class IRCService extends Service {
                 intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
                 intent.putExtra("IRC_MESSAGE", parts[3].substring(1));
                 relayMessage = true;
+            } else { // check for errors. TODO: everything
+                int commandCode = Integer.parseInt(command);
+                if(commandCode >= 400 && commandCode <= 599) {
+                    intent.putExtra("IRC_ERROR", true);
+                    relayMessage = true;
+                }
             }
 
             // broadcast stuff
