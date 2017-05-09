@@ -1,0 +1,16 @@
+x line segmentation (message cuts off after ':')
+x blank line in chatLog if button pressed with no content
+x keyboard conceals ChatScrollAdapter
+x no error or format checking on login screen input
+- ping timeout (PONG response may be incorrect)
+- no checking on connection errors
+- text not selectable
+- private PING appears as privmsg
+- no ssl
+x keyboard pops up on startup
+? no format checking on ChatActivity [unnecessary]
+x input field keyboards have no -> button
+x app icon
+- send icon & animation
+- connection status indicator
+- service does not need to update as often when app in background
