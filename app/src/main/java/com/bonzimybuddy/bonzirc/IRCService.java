@@ -31,6 +31,9 @@ import java.util.ArrayList;
  */
 
 public class IRCService extends Service {
+    public static final String BROADCAST_NET = "broadcast_net";
+    public static final String BROADCAST_IRC = "broadcast_irc";
+
     private final IBinder mBinder = new NetworkBinder();
     private ConnectionHandler mConnection;
 
@@ -56,7 +59,7 @@ public class IRCService extends Service {
         }
     }
 
-    /* Connection-handling thread class (go figure)
+    /* This class deals with
      */
     private class ConnectionHandler extends Thread {
         private Socket socket;
@@ -74,6 +77,31 @@ public class IRCService extends Service {
         }
 
         public void run() {
+            /* TODO: error handling.
+               OK. What exceptional circumstances are there?
+                   - TCP/IP
+                    1) initial connection failure (new Socket())
+                    2) connection dropped
+                   - IRC
+                    3) nick in use, channel private, anything preventing the joining of said channel
+                    4) quit/connection dropped (results in TCP/IP drop)
+               OK. How do we want to display these to the user?
+                   - TCP/IP
+                    1) return to initial login screen (show toast?)
+                    2) stay in chat window (print error in chat?)
+                   - IRC
+                    3) same as 1)
+                    4) same as 2)
+               OK. How and where do we want to implement these responses?
+                   - TCP/IP
+                    1) emit BROADCAST_FAIL and kill service
+                    2) ''
+                   - IRC
+                    3) do not relay IRC message, instead do 1) with a bundled message
+                    4) ''
+               Maybe initial connection errors can be handled here (not broadcast), and all further
+               errors can simply be relayed on to BroadcastListeners.
+            */
             try {
                 socket = new Socket(hostname, port);
                 inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -85,7 +113,7 @@ public class IRCService extends Service {
                         + "NICK " + nick + "\r\n"
                         + "USER din don dan: bango\r\n"
                         + "JOIN " + channel + "\r\n");
-                registered = true;
+                //registered = true;
 
                 while(socket.isConnected()) {
                     // backlog of incoming messages
@@ -111,6 +139,89 @@ public class IRCService extends Service {
 
                 Log.d("connection", e.toString());
                 //Intent intent = new Intent()
+            }
+        }
+
+        // Helper method for message receipt and consequent broadcast.
+        // Placed here for isolation from main thread.
+        private void receiveMessage() {
+            try {
+                String line = inputStream.readLine();
+                String prefix = null;
+                String command;
+                String params;
+
+                String parts[];
+                boolean relayMessage = false;
+
+                Log.d("NETWORK", line);
+
+                Intent intent = new Intent("incomingMessage");
+                intent.putExtra("IRC_RAW", line);
+
+                // do basic parsing
+                parts = line.split(" ");
+                if(line.charAt(0) == ':') { // prefix present?
+                    prefix = parts[0].substring(1);
+                    command = parts[1];
+                } else
+                    command = parts[0];
+
+                //Log.d("PARSE", "PREFIX: " + prefix + ", COMMAND: " + command);
+
+                intent.putExtra("IRC_COMMAND", command);
+
+                if(command.equals(IRC_COMMAND_PRIVMSG)) {
+                    String target;
+                    String message;
+                    String speaker;
+                    if(prefix == null) {
+                        intent.putExtra("IRC_SPEAKER", "");
+
+                        target = parts[1];
+                        message = line.substring(line.indexOf(':') + 1);
+                    } else {
+                        intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
+
+                        target = parts[2];
+                        message = line.substring(line.indexOf(':', 1) + 1);
+                    }
+
+                    intent.putExtra("IRC_TARGET", target);
+                    intent.putExtra("IRC_MESSAGE", message);
+
+                    relayMessage = true;
+                } else if (command.equals(IRC_COMMAND_PING)) {
+                    if(prefix == null)
+                        sendRawMessage("PONG :" + parts[1].substring(1) + "\r\n");
+                    else
+                        sendRawMessage("PONG :" + parts[2].substring(1) + "\r\n");
+                } else if (command.equals(IRC_COMMAND_JOIN)) {
+                    intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
+                    relayMessage = true;
+                } else if (command.equals(IRC_COMMAND_PART)) {
+                    intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
+                    intent.putExtra("IRC_MESSAGE", parts[3].substring(1));
+                    relayMessage = true;
+                } else { // check for errors. TODO: everything
+                    int commandCode = Integer.parseInt(command);
+                    if(commandCode >= 400 && commandCode <= 599) {
+                        intent.putExtra("IRC_ERROR", true);
+                        relayMessage = true;
+                    }
+                }
+
+                // broadcast stuff
+                if(relayMessage) {
+                    if(boundClients > 0)
+                        LocalBroadcastManager.getInstance(IRCService.this).sendBroadcast(intent);
+                    else {
+                        Log.d("LALALALA", "adding intents cause clients are gone");
+                        inputIntents.add(intent);
+                    }
+                }
+            } catch (Exception e) {
+                Log.d("reception", e.toString());
             }
         }
     }
@@ -161,91 +272,6 @@ public class IRCService extends Service {
         if(boundClients < 0)
             boundClients = 0;
 
-    }
-
-    /* Because this method directly reads from mConnection.inputStream,
-     * IT SHOULD ONLY BE CALLED FROM run().
-     * TODO: fix that. interface? put the code directly into ConnectionHandler?
-     */
-    private void receiveMessage() {
-        try {
-            String line = mConnection.inputStream.readLine();
-            String prefix = null;
-            String command;
-            String params;
-
-            String parts[];
-            boolean relayMessage = false;
-
-            Log.d("NETWORK", line);
-
-            Intent intent = new Intent("incomingMessage");
-            intent.putExtra("IRC_RAW", line);
-
-            // do basic parsing
-            parts = line.split(" ");
-            if(line.charAt(0) == ':') { // prefix present?
-                prefix = parts[0].substring(1);
-                command = parts[1];
-            } else
-                command = parts[0];
-
-            //Log.d("PARSE", "PREFIX: " + prefix + ", COMMAND: " + command);
-
-            intent.putExtra("IRC_COMMAND", command);
-
-            if(command.equals(IRC_COMMAND_PRIVMSG)) {
-                String target;
-                String message;
-                String speaker;
-                if(prefix == null) {
-                    intent.putExtra("IRC_SPEAKER", "");
-
-                    target = parts[1];
-                    message = line.substring(line.indexOf(':') + 1);
-                } else {
-                    intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
-
-                    target = parts[2];
-                    message = line.substring(line.indexOf(':', 1) + 1);
-                }
-
-                intent.putExtra("IRC_TARGET", target);
-                intent.putExtra("IRC_MESSAGE", message);
-
-                relayMessage = true;
-            } else if (command.equals(IRC_COMMAND_PING)) {
-                if(prefix == null)
-                    sendRawMessage("PONG :" + parts[1].substring(1) + "\r\n");
-                else
-                    sendRawMessage("PONG :" + parts[2].substring(1) + "\r\n");
-            } else if (command.equals(IRC_COMMAND_JOIN)) {
-                intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
-                relayMessage = true;
-            } else if (command.equals(IRC_COMMAND_PART)) {
-                intent.putExtra("IRC_SPEAKER", prefix.substring(0, prefix.indexOf("!")));
-                intent.putExtra("IRC_MESSAGE", parts[3].substring(1));
-                relayMessage = true;
-            } else { // check for errors. TODO: everything
-                int commandCode = Integer.parseInt(command);
-                if(commandCode >= 400 && commandCode <= 599) {
-                    intent.putExtra("IRC_ERROR", true);
-                    relayMessage = true;
-                }
-            }
-
-            // broadcast stuff
-            if(relayMessage) {
-                if(boundClients > 0)
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                else {
-                    Log.d("LALALALA", "adding intents cause clients are gone");
-                    inputIntents.add(intent);
-                }
-            }
-        } catch (Exception e) {
-            Log.d("reception", e.toString());
-        }
     }
 
     public void privateMessage(String message) {
