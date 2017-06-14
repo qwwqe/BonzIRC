@@ -2,6 +2,9 @@ package com.bonzimybuddy.bonzirc;
 
 import java.util.regex.Pattern;
 
+/**
+ * Reference class for IRC regexes.
+ */
 public class IRCPatterns {
     private static final String letter = "[A-Za-z]";
     private static final String digit = "[\\d]";

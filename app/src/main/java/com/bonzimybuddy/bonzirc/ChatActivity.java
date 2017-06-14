@@ -16,9 +16,9 @@ import android.widget.EditText;
 
 import java.util.ArrayList;
 
-/* Basically all the IRC code and chat window code crammed together. Another refactoring project.
+/**
+ * Basically all the IRC code and chat window code crammed together. Another refactoring project.
  */
-
 public class ChatActivity extends Activity {
     // networking stuff
     private IRCService mService; // network service. this is a Service, not an IBinder object. fwiw.

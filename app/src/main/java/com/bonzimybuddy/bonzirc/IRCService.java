@@ -19,17 +19,18 @@ import java.util.ArrayList;
  * NetworkBinder.getService() returns an instance of IRCService, and therefore provides the
  * caller with with direct access to the public methods of IRCService. ChatActivity uses this
  * service by such direct retrieval - as opposed to using it through the intermediary Binder.
- *
+ * <p>
  * Internally, methods of IRCService can directly write to outputStream at any time to send
  * data through the socket. When data is ready to be read from inputStream, however, the
  * ConnectionHandler thread will itself call the appropriate IRCService method - only then
  * should these methods directly access inputStream.
- *
+ * <p>
  * Notes:
- * > Perhaps at some point factor out the binding code and connection code to their own files.
- * > Verify that client-service communication can also be achieved through the Binder.
+ * <ul>
+ * <li> Perhaps at some point factor out the binding code and connection code to their own files.</li>
+ * <li> Verify that client-service communication can also be achieved through the Binder.</li>
+ * </ul>
  */
-
 public class IRCService extends Service {
     public static final String BROADCAST_NET = "broadcast_net";
     public static final String BROADCAST_IRC = "broadcast_irc";

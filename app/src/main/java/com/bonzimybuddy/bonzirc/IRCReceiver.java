@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+/**
+ * Receiver for broadcasts sent from {@link IRCService}.
+ */
 public class IRCReceiver extends BroadcastReceiver {
     private final ChatActivity activity;
 

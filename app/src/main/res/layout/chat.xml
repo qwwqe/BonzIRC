@@ -20,26 +20,9 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/send_message"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"/>
+        android:layout_marginEnd="8dp"
+        app:layout_constraintVertical_bias="1.0" />
 
-<!--
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:text="TextView"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
--->
     <EditText
         android:id="@+id/send_message"
         android:layout_width="0dp"
@@ -53,17 +36,19 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bon"
+        android:background="?android:selectableItemBackground"
+        android:src="@mipmap/ic_launcher"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="@+id/send_message"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/send_message"
         android:layout_marginRight="8dp"
         android:layout_marginEnd="8dp"
         android:onClick="onSendMessage"
+        android:contentDescription="send"
         />
 
 </android.support.constraint.ConstraintLayout>

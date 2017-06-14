@@ -8,8 +8,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.ViewHolder> {
-    private ArrayList<String> mLines;
+/**
+ * Interface between chatline content and its display.
+ */
+public class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.ViewHolder> {
+    private ArrayList<String> mLines = new ArrayList<>();
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
@@ -21,8 +24,6 @@ class ChatScrollAdapter extends RecyclerView.Adapter<ChatScrollAdapter.ViewHolde
 
         TextView getTextView() { return textView; }
     }
-
-    ChatScrollAdapter() { mLines = new ArrayList<>(); }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {

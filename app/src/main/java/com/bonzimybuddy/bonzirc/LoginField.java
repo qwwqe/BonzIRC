@@ -11,6 +11,10 @@ import android.util.AttributeSet;
 
 import java.util.regex.Pattern;
 
+/**
+ * Class for server, nick, etc input fields. This basically exists to facilitate input-checking
+ * and tweak the visual effects corresponding to incorrect input.
+ */
 public class LoginField extends AppCompatEditText {
     private boolean valid = false;
     private String type = "";
